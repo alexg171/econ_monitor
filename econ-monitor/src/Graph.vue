@@ -1,7 +1,6 @@
 <template>
-  <Line v-if="data" :data="data" :options="options" />
+    <Line style="height: 500px;" v-if="data" :data="data" :options="options" />
 </template>
-
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
@@ -13,7 +12,9 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  scales,
+  Ticks
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
 
@@ -50,7 +51,14 @@ onMounted(async () => {
 
 const options = {
   responsive: true,
-  maintainAspectRatio: false
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      ticks: {
+        stepSize: 5
+      }
+    }
+  }
 }
 
 </script>
