@@ -17,7 +17,8 @@ import {
   Ticks
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
-import { SeriesData } from './SeriesData'
+import type { SeriesData } from './SeriesData.ts'
+import type { DataSet } from './DataSet.ts'
 
 ChartJS.register(
   CategoryScale,
@@ -30,44 +31,51 @@ ChartJS.register(
 )
 
 const data = ref()
-
-const allSeriesData = ref<SeriesData[]>([])
+const loadedData = ref<SeriesData[]>([])
+const dataSets = ref<DataSet[]>([])
 
 onMounted(async () => {
   const res = await fetch('/index.json')
   const fileList: string[] = await res.json()
 
-  for (const file of fileList) {
+  for (const file of fileList.slice(0, 5)) {
     const res = await fetch(`/${file}`)
     const json = await res.json()
 
-    allSeriesData.value.push({
+    loadedData.value.push({
       series_id: json.series_id,
       title: json.title,
       data: json.data
     })
   }
 
+  const labels = Array.from({ length: 60 }, (_, i) =>
+  new Date(new Date().setMonth(new Date().getMonth() - 59 + i))
+    .toISOString()
+    .slice(0, 7)
+  )
 
-  const firstSeries = allSeriesData.value[0]
-  if (firstSeries && Array.isArray(firstSeries.data)) {
-    const labels = firstSeries.data.map((d: any) => d.date.substring(0, 7))
-    const values = firstSeries.data.map((d: any) => d.value)
 
-    data.value = {
-      labels,
-      datasets: [
-        {
-          label: firstSeries.title,
-          backgroundColor: '#f87979',
-          data: values,
-        }
-      ]
+  data.value = {
+  labels,
+  datasets: loadedData.value.map((series) => {
+    const labelSet = new Set(labels)
+    const filtered = series.data.filter((d: any) => labelSet.has(d.date.substring(0, 7)))
+    const color = '#' + Math.floor(Math.random() * 16777215).toString(16)
+
+    return {
+      label: series.title,
+      data: labels.map(label => {
+        const match = filtered.find((d: any) => d.date.substring(0, 7) === label)
+        return match ? match.value : null
+      }),
+      borderColor: color,
+      backgroundColor: color,
+      fill: false,
+      tension: 0.1
     }
-  } else {
-    console.warn("firstSeries or its data is undefined:", firstSeries)
-  }
-
+  })
+}
 })
 
 const options = {
@@ -75,9 +83,10 @@ const options = {
   maintainAspectRatio: false,
   scales: {
     y: {
+      beginAtZero: false,
       ticks: {
         stepSize: 5
-      }
+      },
     }
   }
 }
