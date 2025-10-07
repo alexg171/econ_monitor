@@ -17,6 +17,7 @@ import {
   Ticks
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
+import { SeriesData } from './SeriesData'
 
 ChartJS.register(
   CategoryScale,
@@ -30,23 +31,43 @@ ChartJS.register(
 
 const data = ref()
 
+const allSeriesData = ref<SeriesData[]>([])
+
 onMounted(async () => {
-  const res = await fetch('/cpi_series.json')
-  const json = await res.json()
+  const res = await fetch('/index.json')
+  const fileList: string[] = await res.json()
 
-  const labels = json.map((d: any) => d.date.substring(0, 7))
-  const values = json.map((d: any) => d.value)
+  for (const file of fileList) {
+    const res = await fetch(`/${file}`)
+    const json = await res.json()
 
-  data.value = {
-    labels,
-    datasets: [
-      {
-        label: 'CPI',
-        backgroundColor: '#f87979',
-        data: values,
-      }
-    ]
+    allSeriesData.value.push({
+      series_id: json.series_id,
+      title: json.title,
+      data: json.data
+    })
   }
+
+
+  const firstSeries = allSeriesData.value[0]
+  if (firstSeries && Array.isArray(firstSeries.data)) {
+    const labels = firstSeries.data.map((d: any) => d.date.substring(0, 7))
+    const values = firstSeries.data.map((d: any) => d.value)
+
+    data.value = {
+      labels,
+      datasets: [
+        {
+          label: firstSeries.title,
+          backgroundColor: '#f87979',
+          data: values,
+        }
+      ]
+    }
+  } else {
+    console.warn("firstSeries or its data is undefined:", firstSeries)
+  }
+
 })
 
 const options = {

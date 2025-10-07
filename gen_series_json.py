@@ -1,6 +1,6 @@
 import pandas as pd
 import json
-import matplotlib.pyplot as plt
+import os
 
 df_data = pd.read_csv("./bls_cpi_data/cu.data.1.AllItems", sep=r"\s+", header=0)
 df_info = pd.read_csv("./bls_cpi_data/cu.series", sep=r"\t", engine="python", header=0)
@@ -30,7 +30,10 @@ for i, series in enumerate(df_info["series_id"]):
     with open(f"econ-monitor/public/{series}.json", "w") as f:
         json.dump(out, f, indent=2)
 
-    # meta = df_info[series]
+files = [f for f in os.listdir("econ-monitor/public") if f.endswith(".json")]
+with open("econ-monitor/public/index.json", "w") as f:
+    json.dump(files, f)
+
 
 
 
