@@ -8,13 +8,18 @@ df_info.columns = df_info.columns.str.strip()
 df_info['series_id'] = df_info['series_id'].str.strip()
 
 for i, series in enumerate(df_info["series_id"]):
+    print(f"Processing {i+1}/{len(df_info)}: {series}")
     meta = df_info[df_info["series_id"] == series].iloc[0]
     meta = meta.fillna("")
     meta = meta.to_dict()
 
     data = df_data[df_data["series_id"] == series]
-    data = data.fillna("")
+    if data.empty:
+        continue
+    data["date"] = data["year"].astype(str) + "-" + data["period"].str.replace("M", "").str.zfill(2)
+    data = data[["date", "value"]]
     data = data.to_dict(orient="records")
+    
     out = {
         "series_id": series,
         "title": meta["series_title"],
@@ -22,7 +27,7 @@ for i, series in enumerate(df_info["series_id"]):
         "data": data
     }
     
-    with open(f"series_json/{series}.json", "w") as f:
+    with open(f"econ-monitor/public/{series}.json", "w") as f:
         json.dump(out, f, indent=2)
 
     # meta = df_info[series]

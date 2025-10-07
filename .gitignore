@@ -1,3 +1,5 @@
 *.ini
 
 series_json/
+
+econ-monitor/public/*.json
