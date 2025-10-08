@@ -1,5 +1,5 @@
 <template>
-    <Line style="height: 500px;" v-if="data" :data="data" :options="options" />
+    <Line v-bind="$attrs" v-if="data" :data="data" :options="options" />
 </template>
 
 <script lang="ts" setup>

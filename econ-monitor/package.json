@@ -17,6 +17,8 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
     "chart.js": "^4.5.0",
+    "flowbite": "^3.1.2",
+    "flowbite-vue": "^0.2.2",
     "tailwindcss": "^4.1.14",
     "vue": "^3.5.22",
     "vue-chartjs": "^5.3.2"
