@@ -1,8 +1,10 @@
 <template>
   <div class="h-screen flex flex-col  content-center items-center bg-gray-100 p-4">
-
     <div class="flex justify-center m-4">
       <Dropdown />
+    </div>
+    <div class="flex justify-center m-4">
+      <SearchBox />
     </div>
     <div >
       <Graph class="h-[500px]" />
@@ -13,6 +15,7 @@
 <script setup lang="ts">
 import Dropdown from "./Dropdown.vue";
 import Graph from "./Graph.vue";
+import SearchBox from "./SearchBox.vue";
 
 </script>
 
