@@ -4,7 +4,7 @@
       <Dropdown />
     </div>
     <div class="flex justify-center m-4">
-      <SearchBox />
+      <SearchBox class="w-[500px]" />
     </div>
     <div >
       <Graph class="h-[500px]" />

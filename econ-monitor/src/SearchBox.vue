@@ -1,39 +1,47 @@
 <template>
-    <div>
-        <input type="text" v-model="searchQuery" placeholder="Search series..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-        <div v-if="searchQuery.length > 3">
-            <span>{{ filteredItems.length }} series found</span>
-            <ul>
-                <li v-for="item in filteredItems" :key="item.item_code">{{ item.series_title }}</li>
-            </ul>
+    <div class="flex flex-col">
+        <div>
+            <fwb-autocomplete
+            v-model="selectedIndicator"
+            :options="seriesList"
+            :search-fields="['series_title']"
+            display="series_title"
+            placeholder="Select an indicator"
+            />
+        </div>
+        <div>
+            <li>
+                <ul v-for="(item, idx) in selectedIndicatorList" :key="idx">
+                    {{ item.series_title }}
+                </ul>
+            </li>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, computed} from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import type { SeriesMeta } from './SeriesMeta';
+import { FwbAutocomplete } from 'flowbite-vue';
 
-const searchQuery = ref('')
-const seriesList = ref<Array<SeriesMeta>>([])
-const filteredItems = computed(() => {
-    return seriesList.value.filter(item => 
-        item.series_title.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
-});
-
-// computed: {
-//     filteredItems() {
-//       return this.items.filter(item => {
-//          return item.type.toLowerCase().indexOf(this.search.toLowerCase()) > -1
-//       })
-//     }
-//   }
-
+const selectedIndicator = ref<SeriesMeta | null>(null)
+const seriesList = ref<SeriesMeta[]>([])
+const selectedIndicatorList = ref<SeriesMeta[]>([])
 
 onMounted(async () => {
-    const res = await fetch('/series.json')
-    seriesList.value = await res.json()
+    try {
+        const res = await fetch('/series.json')
+        seriesList.value = (await res.json()) ?? []
+    } catch (e) {
+        console.error('Failed to load series list', e)
+        seriesList.value = []
+    }
 });
+
+watch(selectedIndicator, (newVal, oldVal) => {
+    if (newVal !== null) {
+        selectedIndicatorList.value.push(newVal);
+    }
+})
 
 </script>
